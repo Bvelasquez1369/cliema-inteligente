@@ -1,6 +1,6 @@
 name: app_clima
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 
 version: 1.0.0+1
 
@@ -16,9 +16,7 @@ dependencies:
   firebase_auth: ^4.20.0
   cloud_firestore: ^4.17.5
   firebase_storage: ^11.7.7
-  image_picker: ^1.0.7
   shared_preferences: ^2.2.2
-  path_provider: ^2.1.2
 
 dev_dependencies:
   flutter_test:

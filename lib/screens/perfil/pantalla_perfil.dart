@@ -1,10 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:app_clima/modelos/usuario.dart';
 import 'package:app_clima/services/servicio_perfil.dart';
 
-/// Pantalla de perfil como widget (sin Scaffold propio) para usar en pestañas.
 class PantallaPerfil extends StatefulWidget {
   final ValueNotifier<bool> notificadorModoOscuro;
   final VoidCallback onCerrarSesion;
@@ -22,7 +19,6 @@ class PantallaPerfil extends StatefulWidget {
 class _PantallaPerfilState extends State<PantallaPerfil>
     with TickerProviderStateMixin {
   final ServicioPerfil _servicioPerfil = ServicioPerfil();
-  final ImagePicker _picker = ImagePicker();
   final _nombreCtrl = TextEditingController();
   final _bioCtrl = TextEditingController();
 
@@ -40,9 +36,10 @@ class _PantallaPerfilState extends State<PantallaPerfil>
       vsync: this,
       duration: const Duration(milliseconds: 800),
     )..repeat(reverse: true);
-    _pulseAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
-    );
+    _pulseAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut));
     _cargarPerfil();
   }
 
@@ -71,35 +68,6 @@ class _PantallaPerfilState extends State<PantallaPerfil>
     }
   }
 
-  Future<void> _cambiarFoto() async {
-    final XFile? imagen = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 80,
-    );
-    if (imagen == null || _usuario == null) return;
-
-    try {
-      setState(() => _cargando = true);
-      // Guarda la foto localmente y obtiene la ruta
-      final rutaLocal = await _servicioPerfil.guardarFotoLocal(imagen);
-      final nuevoUsuario = Usuario(
-        uid: _usuario!.uid,
-        nombre: _usuario!.nombre,
-        biografia: _usuario!.biografia,
-        urlFoto: rutaLocal,
-      );
-      setState(() {
-        _usuario = nuevoUsuario;
-        _cargando = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Error al guardar foto: $e';
-        _cargando = false;
-      });
-    }
-  }
-
   Future<void> _guardarCambios() async {
     if (_usuario == null) return;
     final nuevoUsuario = Usuario(
@@ -115,9 +83,9 @@ class _PantallaPerfilState extends State<PantallaPerfil>
         _usuario = nuevoUsuario;
         _cargando = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Perfil actualizado')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Perfil actualizado')));
     } catch (e) {
       setState(() {
         _error = 'Error al guardar: $e';
@@ -150,43 +118,47 @@ class _PantallaPerfilState extends State<PantallaPerfil>
           child: Column(
             children: [
               const SizedBox(height: 20),
-              GestureDetector(
-                onTap: _cambiarFoto,
-                child: AnimatedBuilder(
-                  animation: _pulseAnim,
-                  builder: (context, child) {
-                    final brillo = Colors.cyanAccent
-                        .withValues(alpha: 0.3 + _pulseAnim.value * 0.5);
-                    return Container(
-                      width: 130,
-                      height: 130,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: brillo, width: 3),
-                        boxShadow: [
-                          BoxShadow(
-                            color: brillo,
-                            blurRadius: 20,
-                            spreadRadius: 5,
-                          ),
-                        ],
+              AnimatedBuilder(
+                animation: _pulseAnim,
+                builder: (context, child) {
+                  final brillo = Colors.cyanAccent.withValues(
+                    alpha: 0.3 + _pulseAnim.value * 0.5,
+                  );
+                  return Container(
+                    width: 130,
+                    height: 130,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: esOscuro
+                          ? Colors.cyan.withValues(alpha: 0.2)
+                          : Colors.cyan.withValues(alpha: 0.1),
+                      border: Border.all(color: brillo, width: 3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: brillo,
+                          blurRadius: 20,
+                          spreadRadius: 5,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        _usuario?.nombre.isNotEmpty == true
+                            ? _usuario!.nombre[0].toUpperCase()
+                            : '👤',
+                        style: const TextStyle(
+                          fontSize: 60,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.cyanAccent,
+                        ),
                       ),
-                      child: ClipOval(
-                        child: _usuario?.urlFoto != null
-                            ? (_usuario!.urlFoto!.startsWith('http')
-                                ? Image.network(_usuario!.urlFoto!)
-                                : Image.file(File(_usuario!.urlFoto!),
-                                    fit: BoxFit.cover))
-                            : const Icon(Icons.person,
-                                size: 70, color: Colors.white54),
-                      ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 8),
               Text(
-                'Toca para cambiar foto',
+                '👤 Tu perfil',
                 style: TextStyle(
                   color: esOscuro ? Colors.white54 : Colors.black54,
                   fontSize: 12,
@@ -221,7 +193,8 @@ class _PantallaPerfilState extends State<PantallaPerfil>
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30)),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
               ),
               if (_error != null)
@@ -307,12 +280,17 @@ class _PantallaPerfilState extends State<PantallaPerfil>
             decoration: InputDecoration(
               labelText: etiqueta,
               labelStyle: TextStyle(
-                  color: esOscuro ? Colors.white54 : Colors.black54),
-              prefixIcon:
-                  Icon(icono, color: esOscuro ? Colors.cyanAccent : Colors.cyan),
+                color: esOscuro ? Colors.white54 : Colors.black54,
+              ),
+              prefixIcon: Icon(
+                icono,
+                color: esOscuro ? Colors.cyanAccent : Colors.cyan,
+              ),
               border: InputBorder.none,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 16,
+              ),
             ),
           ),
         ),
