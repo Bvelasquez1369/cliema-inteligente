@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "988203892805",
+    "project_id": "clima-inteligente-889df",
+    "storage_bucket": "clima-inteligente-889df.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:988203892805:android:b71a5e3cd2f745f2fea32c",
+        "android_client_info": {
+          "package_name": "com.example.app_clima"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMzz5yr5NyBPF3zhkjgqFS4bN8QT3M8oU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
